@@ -1,14 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState ,useEffect} from 'react'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetch('http://localhost:8000/api/hello')
+      .then(response => response.json())
+      .then(data => setMessage(data.message));
+  }, []);
 
   return (
     <>
-     <div className='bg-red-50'>FINAI</div>
+     <div className="">
+      <header className="App-header">
+        <p>{message}</p>
+      </header>
+    </div>
     </>
   )
 }
