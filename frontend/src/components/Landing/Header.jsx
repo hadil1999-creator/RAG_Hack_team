@@ -3,11 +3,11 @@ import logo from '../../assets/image/logo.png'
 export default function Header() {
   return (
     <>
-      <div className="flex justify-center w-full   pt-10 ">
+      <div className="flex justify-center w-full pt-10  ">
         <div className="flex justify-start">
           {/* <img src={logo} className="w-12 h-12 " alt="" /> */}
         </div>
-        <div className="w-[490px] rounded-3xl h-12  border  px-4 flex items-center border-[#114124] bg-green-900 bg-opacity-15 ">
+        <div className="w-[490px] rounded-3xl h-12  border  px-4 flex items-center border-[#114124] bg-lime-100 bg-opacity-15 ">
           <ul className="flex gap-x-9 items-center text-[#f0fff1]  text-opacity-1 ">
             <li>
             <img src={logo} className="w-9 h-9 " alt="" />
