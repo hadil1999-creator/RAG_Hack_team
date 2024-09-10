@@ -1,6 +1,11 @@
+import Chatbox from "../components/Home/Chatbox";
 
 export default function Home() {
   return (
-    <div className="bg-red-50 text-blue-600 text-3xl">hi </div>
-  )
+    <div className="w-full h-full">
+      <div className="justify-center items-center flex">
+        <Chatbox />
+      </div>
+    </div>
+  );
 }
