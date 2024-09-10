@@ -9,22 +9,33 @@ export default function Footer() {
         </div>
         <div className="">
           <ul className="flex text-[#f0fff1] gap-x-8 text-lg font-mono">
-            <li>
-              <p>Legal</p>
-              <ul className="mt-6">
-                <li>About</li>
-                <li>Terms of Services</li>
-                <li>Privacy Policy</li>
-                <li>Support</li>
-              </ul>
-            </li>
+           
             <li className="">
-              <p className="text-xl">Contact Us</p>
-              <ul className="mt-6">
-                <li className="cursor-pointer">Twitter</li>
-                <li className="cursor-pointer">Linkedin</li>
-                <li className="cursor-pointer">Discord</li>
-              </ul>
+            <p className="text-2xl font-bold mb-4">Contact Us</p>
+<div className="flex">
+  <ul className="flex-1 list-disc pl-5 space-y-2">
+    <li>
+      <a href="https://www.linkedin.com/in/hadil-ben-amor-777a981ba/" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Hadil</a>
+    </li>
+    <li>
+    <a href="https://www.linkedin.com/in/mishba-bagban/" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Misba</a>
+   
+    </li>
+    <li>
+    <a href="https://www.linkedin.com/in/ahmed-islam01/" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Ahmed</a>
+    </li>
+  </ul>
+  <ul className="flex-1 list-disc pl-5 space-y-2">
+    <li>
+    <a href="https://www.linkedin.com/in/osama-ayman/" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Osama</a>
+     
+    </li>
+    <li>
+      <a href="https://www.linkedin.com/in/yusuph-taopheeq-baab2280/" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Yusuph</a>
+    </li>
+  </ul>
+</div>
+
             </li>
             <li></li>
           </ul>
