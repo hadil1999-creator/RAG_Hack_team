@@ -69,6 +69,7 @@ export default function Card() {
                 </label>
                 <input
                   type="text"
+                  required
                   id="name"
                   className=" rounded-xl w-96 bg-neutral-500 bg-opacity-20 focus:outline-none mt-3 px-2 py-3"
                 />
