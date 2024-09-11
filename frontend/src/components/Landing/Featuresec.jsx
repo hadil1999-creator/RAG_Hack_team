@@ -6,7 +6,7 @@ import goal from "../../assets/svg/goal.svg";
 import secure from "../../assets/svg/secure.svg";
 export default function Featuresec() {
   return (
-    <div className="">
+    <div className="" id="feature">
       <section className=" w-full gap-x-1 flex flex-  bg-black px-14 bg-opacity-15 ">
         <div className="w-1/2 flex-col text-[#f0fff1]  font-serif flex justify-center mt-">
           <div className="flex flex-col items-center w-[45rem]">

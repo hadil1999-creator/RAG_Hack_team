@@ -3,6 +3,7 @@ import Footer from "../components/Landing/Footer.jsx";
 import robo from "../assets/image/robo.png";
 import Featuresec from "../components/Landing/Featuresec.jsx";
 import home from "../assets/image/home.png";
+import {Link} from "react-router-dom";
 
 export default function landing() {
   return (
@@ -10,16 +11,18 @@ export default function landing() {
       <Header />
 
       {/* hero section */}
-      <section className="flex items-center w-full px-20 ">
+      <section className="flex items-center w-full px-20 " id="home">
         <div className="w-1/2">
           <h1 className="text-8xl text-opacity0 text-[#f0fff1] font-serif">
             Building a Better life with{" "}
             <span className="text-green-300">Finance</span>
           </h1>
           <div className="flex justify-center">
+            <Link to="/login">
             <button className="mt-4 border text-xl text-[#f0fff1] px-3 py-3 rounded-lg w-96 [background:linear-gradient(45deg,#000,theme(colors.slate.800)_50%,#14532d)_padding-box,conic-gradient(from_var(--border-angle),theme(colors.slate.600/.48)_80%,_#f0fff1_86%,_#f0fff1_90%,_#f0fff1_94%,_theme(colors.slate.600/.48))_border-box] border-transparent animate-border hover:transition-transform hover:scale-110 shadow-2xl">
               Sign up Now
             </button>
+            </Link>
           </div>{" "}
         </div>
         <div className="w-1/2 ">
