@@ -6,16 +6,22 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Landing from "./Pages/Landing.jsx";
 import Home from "./Pages/Home.jsx";
 import Layout from "./layout.jsx";
-import Setting from "./Pages/Setting.jsx";
+import Setting from "./Pages/setting/Setting.jsx";
 import Riskm from "./Pages/Riskm.jsx";
 import Analysis from "./Pages/Analysis.jsx";
 import Historychat from "./Pages/Historychat.jsx";
-
+import Profile from "./Pages/setting/Profile.jsx";
+import Account from "./Pages/setting/Account.jsx";
+import Login from "./Pages/Login.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Landing />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
   },
   {
     element: <Layout />,
@@ -25,20 +31,26 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path:"analysis",
-        element:<Analysis/>
+        path: "analysis",
+        element: <Analysis />,
       },
       {
-        path:"recentchats",
-        element:<Historychat/>
+        path: "recentchats",
+        element: <Historychat />,
       },
       {
-        path:"riskmanagement",
-        element:<Riskm/>
+        path: "riskmanagement",
+        element: <Riskm />,
       },
       {
-        path:"settings",
-        element:<Setting/>
+        path: "settings",
+        element: <Setting />,
+        children: [
+          { index: true, element: <Profile /> },
+          {path: "profile", element: <Profile />},
+          {path: "account", element: <Account />},
+
+        ],
       },
     ],
   },
