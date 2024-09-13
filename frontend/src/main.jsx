@@ -13,6 +13,7 @@ import Historychat from "./Pages/Historychat.jsx";
 import Profile from "./Pages/setting/Profile.jsx";
 import Account from "./Pages/setting/Account.jsx";
 import Login from "./Pages/Login.jsx";
+import Chat from "./Pages/Chat.jsx";
 
 const router = createBrowserRouter([
   {
@@ -43,13 +44,16 @@ const router = createBrowserRouter([
         element: <Riskm />,
       },
       {
+        path: "chat/:id",
+        element: <Chat />,
+      },
+      {
         path: "settings",
         element: <Setting />,
         children: [
           { index: true, element: <Profile /> },
-          {path: "profile", element: <Profile />},
-          {path: "account", element: <Account />},
-
+          { path: "profile", element: <Profile /> },
+          { path: "account", element: <Account /> },
         ],
       },
     ],
