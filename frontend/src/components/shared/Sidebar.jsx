@@ -36,7 +36,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <div className="w-12 border-gray-900 border-r flex flex-col justify-between rounded-r-[32px] h-full bg-[#0D0C0C] shadow-sm shadow-gray-700">
+      <div className="w-12 border-gray-900 border-r flex flex-col justify-between rounded-r-[32px] h-screen fixed z-20 top-0  bg-[#0D0C0C] shadow-sm shadow-gray-700">
         <div>
           <div className="flex justify-center">
             <img src={logo} alt="" className="w-8 h-8 my-8" />

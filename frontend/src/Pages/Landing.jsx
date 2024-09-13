@@ -11,7 +11,7 @@ export default function landing() {
       <Header />
 
       {/* hero section */}
-      <section className="flex items-center w-full px-20 " id="home">
+      <section className="flex items-center w-full h-screen px-20 " id="home">
         <div className="w-1/2">
           <h1 className="text-8xl text-opacity0 text-[#f0fff1] font-serif">
             Building a Better life with{" "}
