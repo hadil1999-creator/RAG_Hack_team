@@ -11,3 +11,5 @@ starlette==0.38.4
 typing_extensions==4.12.2
 tzdata==2024.1
 uvicorn==0.30.6
+mysql-connector-python
+bcrypt
