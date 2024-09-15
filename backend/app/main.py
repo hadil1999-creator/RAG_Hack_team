@@ -1,42 +1,115 @@
-from fastapi.middleware.cors import CORSMiddleware # adding this to allow CORS requests from the frontend
-from pydantic import BaseModel
+from fastapi import FastAPI,Depends
 from fastapi.middleware.cors import CORSMiddleware
-import openai
-from dotenv import load_dotenv
-from auth import *
-from fastapi import FastAPI, Form
-from fastapi import FastAPI, HTTPException, Form
-from app.auth import register_user, login_user
-import bcrypt
-import mysql.connector
-from app.db import get_db_connection
-import os
+from authlib.integrations.starlette_client import OAuth
+from starlette.requests import Request
+from starlette.config import Config
+from starlette.responses import RedirectResponse
+from .api.endpoints import users
+from pydantic import BaseModel
+
+
 app = FastAPI()
 
-@app.post("/login")
-def login(email: str = Form(...), password: str = Form(...)):
-    try:
-        db = get_db_connection()
-        cursor = db.cursor()
-        sql = "SELECT password_hash FROM users WHERE email = %s"
-        cursor.execute(sql, (email,))
-        result = cursor.fetchone()
+#********** login and register **********
+# Add CORS middleware to allow requests from the frontend
+origins = [
+    "http://localhost",
+    "http://localhost:5173",  # Replace with your frontend URL
+]
+
+app.add_middleware( 
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(users.router, prefix="/users")  # Add a prefix for better organization
+
+# Optionally, you can define a root endpoint
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the FastAPI application!"}
+
+
+#********** OAuth setup **********
+#load environment variables
+config = Config(".env")
+
+oauth = OAuth(config)
+
+#
+CONF_URL = "https://accounts.google.com/.well-known/openid-configuration"
+oauth.register(
+    name="google",
+    server_metadata_url=CONF_URL, 
+    client_id=config("GOOGLE_CLIENT_ID"),
+    client_secret=config("GOOGLE_CLIENT_SECRET"),
+    client_kwargs={"scope": "openid email profile"},
+)
+
+#
+@app.get("/users/google")
+async def login_via_google(request:Request):
+    redirect_uri = request.url_for("auth_via_google")
+    return await oauth.google.authorize_redirect(request,redirect_uri)
+
+@app.get("/auth/google")
+async def auth_via_google(request:Request):
+    token = await oauth.google.authorize_access_token(request) # Get the token
+    user = await oauth.google.parse_id_token(request,token) # Parse the user
+    # Here we would typically create a session or JWT for the user
+
+    return {"user": user}
+
+app.include_router(users.router, prefix="/users")
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the FastAPI application!"}
+
+
+#************ OpenAI API ************
+
+
+import openai
+from dotenv import load_dotenv
+
+# # from fastapi import FastAPI, Form
+# # from fastapi import FastAPI, HTTPException, Form
+# # from app.auth import register_user, login_user
+# # import bcrypt
+# # import mysql.connector
+# # from app.db import get_db_connection
+# # from pydantic import BaseModel
+import os
+
+
+# # @app.post("/login")
+# # def login(email: str = Form(...), password: str = Form(...)):
+# #     try:
+# #         db = get_db_connection()
+# #         cursor = db.cursor()
+# #         sql = "SELECT password_hash FROM users WHERE email = %s"
+# #         cursor.execute(sql, (email,))
+# #         result = cursor.fetchone()
         
-        if result and bcrypt.checkpw(password.encode('utf-8'), result[0]):
-            return {"message": "Login successful!"}
-        else:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
-    except mysql.connector.Error as err:
-        raise HTTPException(status_code=500, detail="Internal server error")
+# #         if result and bcrypt.checkpw(password.encode('utf-8'), result[0]):
+# #             return {"message": "Login successful!"}
+# #         else:
+# #             raise HTTPException(status_code=401, detail="Invalid credentials")
+# #     except mysql.connector.Error as err:
+# #         raise HTTPException(status_code=500, detail="Internal server error")
 
-@app.post("/register")
-def register(email: str = Form(...), password: str = Form(...)):
-    register_user(email, password)
-    return {"message": "User registered successfully!"}
+# # @app.post("/register")
+# # def register(email: str = Form(...), password: str = Form(...)):
+# #     register_user(email, password)
+# #     return {"message": "User registered successfully!"}
 
 
 
-# Get configuration settings 
+# # # Get configuration settings 
 load_dotenv()
 azure_oai_endpoint = os.getenv("AZURE_OAI_ENDPOINT")
 azure_oai_key = os.getenv("AZURE_OAI_KEY")
@@ -45,17 +118,7 @@ azure_search_endpoint = os.getenv("AZURE_SEARCH_ENDPOINT")
 azure_search_key = os.getenv("AZURE_SEARCH_KEY")
 azure_search_index = os.getenv("AZURE_SEARCH_INDEX")
         
-# If your frontend is served from another domain, allow CORS
-origins = ["http://localhost:5173"]  # Change this to your frontend's address
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+# Initialize the OpenAI API client
 openai.api_key = "your-openai-api-key"
 
 class QueryRequest(BaseModel):
