@@ -1,12 +1,13 @@
 import openai
 from pinecone import Pinecone, ServerlessSpec
-from langchain_pinecone import PineconeVectorStore
-from langchain_openai import OpenAIEmbeddings
+# # from langchain_pinecone import PineconeVectorStore
+# # from langchain_openai import OpenAIEmbeddings
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import ChatOpenAI
-from langchain.chains import RetrievalQA 
+# # from langchain_openai import ChatOpenAI
+# # from langchain.chains import RetrievalQA 
 import time
+
 
 OPENAI_API_KEY="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"
 
@@ -16,58 +17,54 @@ openai.api_key = OPENAI_API_KEY
 
 pc = Pinecone(api_key=PINECONE_API_KEY)
 
+index_name = "rag"
+embed_model="text-embedding-3-small"
 
-
-index_name = "test"
-#pc.delete_index(index_name)
-
-# Check if the desired index is in the list of existing indexes
-
-if index_name not in pc.list_indexes().names():
-    pc.create_index(
-        name=index_name,
-        dimension=8, # need to match the dimension of the embedding model = 768
-        metric="cosine",
-        spec=ServerlessSpec(cloud="aws", region="us-east-1"),
-    )
-    while not pc.describe_index(index_name).status["ready"]:
-        time.sleep(1)
-else:
-    print("index_name exists!!")
-
-
-# connect to index
 index = pc.Index(index_name)
 
-# view index stats
-stats = index.describe_index_stats()
+#pc.delete_index(index_name)
 
-print(stats)
+def setup_Pinecone():
+
+    # Check if the desired index is in the list of existing indexes
+    if index_name not in pc.list_indexes().names():
+        pc.create_index(
+            name=index_name,
+            dimension=768, # need to match the dimension of the embedding model = 768
+            metric="cosine",
+            spec=ServerlessSpec(cloud="aws", region="us-east-1"),
+        )
+        while not pc.describe_index(index_name).status["ready"]:
+            time.sleep(1)
+        print("index created successfuly!!")
+    else:
+        print("index_name already exists!!")
+
+    # connect to index
+    index = pc.Index(index_name)
+
+    # view index stats
+    stats = index.describe_index_stats()
+
+    print(stats)
 
 
+def load_doc():
+    # create a loader
+    loader = PyPDFLoader(r"C:\Users\osama\OneDrive\Desktop\RAG_Hack\Economics-of-Investing-in-America.pdf")
 
-# create a loader
-loader = PyPDFLoader(r"C:\Users\osama\OneDrive\Desktop\RAG_Hack\Economics-of-Investing-in-America.pdf")
+    # load data
+    data = loader.load()
 
-
-# load data
-data = loader.load()
-
-# Step 1: Split the Document
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-texts = text_splitter.split_documents(data)  # 'data' is your PDF content
-
-embed_model = "text-embedding-3-small"
-
-
-
-openai.api_key = OPENAI_API_KEY
-openai.api_base = "https://models.inference.ai.azure.com"
-
-
+    # Step 1: Split the Document
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    texts = text_splitter.split_documents(data)  # 'data' is your PDF content
+    return texts
 
 # Step 2: Generate Embeddings
-def get_embeddings(texts):
+def get_embeddings(texts, embed_model):
+    openai.api_key = OPENAI_API_KEY
+    openai.api_base = "https://models.inference.ai.azure.com"
     embeddings = []
     count = 0
     for i, text_chunk in enumerate(texts):
@@ -86,133 +83,141 @@ def get_embeddings(texts):
         }
         # Append the dictionary to the list
         embeddings.append(embedding_dict)
-        if i==2:
-            break
-        count+=1
+        # if i==2:
+        #     break
+        # count+=1
     return embeddings
     # return count
 
+texts = load_doc()
 
-print(get_embeddings(texts))
 # Call the function to get embeddings
-#formatted_embeddings = get_embeddings(texts)
 
-formatted_embeddings = [
-    {"id": "A", "values": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]},
-    {"id": "B", "values": [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]},
-    {"id": "C", "values": [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]},
-    {"id": "D", "values": [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]}
-  ]
+formatted_embeddings = get_embeddings(texts)
+
+# formatted_embeddings = [
+#     {"id": "A", "values": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]},
+#     {"id": "B", "values": [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]},
+#     {"id": "C", "values": [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]},
+#     {"id": "D", "values": [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]}
+#   ]
 
 
 # Step 3: Upsert the Formatted Embeddings into PineCone with 559 vectors / upsert request. See the limits for each dimension here: https://docs.pinecone.io/guides/data/upsert-data#upsert-limits
+def upsert():
 
-batch_size = 559
+    batch_size = 559
 
-# Process embeddings in chunks
-for i in range(0, len(formatted_embeddings), batch_size):
-    batch = formatted_embeddings[i:i + batch_size]
-    # Upsert batch
-    #upsert_data = [(id, embedding) for id, embedding in batch]
-    #index.upsert(vectors=upsert_data)
-    print(batch)
-    #index.upsert(batch)
-    print(f"Upserted batch {i // batch_size + 1}")
+    # Process embeddings in chunks
+    for i in range(0, len(formatted_embeddings), batch_size):
+        batch = formatted_embeddings[i:i + batch_size]
+        # Upsert batch
+        #upsert_data = [(id, embedding) for id, embedding in batch]
+        #index.upsert(vectors=upsert_data)
+        print(batch)
+        index.upsert(batch)
+        print(f"Upserted batch {i // batch_size + 1}")
 
-print(index.describe_index_stats())
-
-query = "what are the best ways to invest my money?"
-response = openai.Embedding.create(input=query, model=embed_model, dimensions=768)
-embedding = response['data'][0]['embedding']
+    print(index.describe_index_stats())
+    return
 
 
-result = index.query(
-    namespace="",
-    vector=embedding, # real embeddings of the query
-    top_k=3, # get only the top_k matches
-    include_values=True
-)
-# print(result)
+# query = "what are the best ways to invest my money?"
 
-# get list of retrieved text
+# # Step 4: Query
+# def rag_query_and_openai(query: str, embed_model):
+#     response = openai.Embedding.create(input=query, model=embed_model, dimensions=768)
+#     embedding = response['data'][0]['embedding']
 
-# adjust the format to get the id (the original text)
-contexts = [item['metadata']['text'] for item in result['matches']]
+#     # connect to index
+#     index = pc.Index(index_name)
+#     result = index.query(
+#         namespace="",
+#         vector=embedding, # real embeddings of the query
+#         top_k=3, # get only the top_k matches
+#         include_values=True
+#     )
+#     # print(result)
 
-augmented_query = "\n\n---\n\n".join(contexts)+"\n\n-----\n\n"+query
+#     # get list of retrieved text
 
-# system message to 'prime' the model
-primer = f"""You are Q&A bot. A highly intelligent system that answers
-user questions based on the information provided by the user above
-each question. If the information can not be found in the information
-provided by the user you truthfully say "I don't know".
-"""
+#     # adjust the format to get the id (the original text)
+#     contexts = [item['metadata']['text'] for item in result['matches']]
 
-from openai import OpenAI
-client = OpenAI(
-    base_url="https://models.inference.ai.azure.com",
-    api_key=OPENAI_API_KEY,
-)
-response = client.chat.completions.create(
-    messages=[
-        {
-            "role": "system",
-            "content": primer,
-        },
-        {
-            "role": "user",
-            "content": augmented_query,
-        }
-    ],
-    model="gpt-4o",
-    temperature=1,
-    max_tokens=4096,
-    top_p=1
-)
+#     augmented_query = "\n\n---\n\n".join(contexts)+"\n\n-----\n\n"+query
 
-print(response.choices[0].message.content)
-#To display this response nicely, we will display it in markdown.
-# from IPython.display import Markdown
-# display(Markdown(response.choices[0].message.content)
+#     # system message to 'prime' the model
+#     primer = f"""You are Q&A bot. A highly intelligent system that answers
+#     user questions based on the information provided by the user above
+#     each question. If the information can not be found in the information
+#     provided by the user you truthfully say "I don't know".
+#     """
+
+#     from openai import OpenAI
+#     client = OpenAI(
+#         base_url="https://models.inference.ai.azure.com",
+#         api_key=OPENAI_API_KEY,
+#     )
+#     response = client.chat.completions.create(
+#         messages=[
+#             {
+#                 "role": "system",
+#                 "content": primer,
+#             },
+#             {
+#                 "role": "user",
+#                 "content": augmented_query,
+#             }
+#         ],
+#         model="gpt-4o",
+#         temperature=1,
+#         max_tokens=4096,
+#         top_p=1
+#     )
+    
+#     return response.choices[0].message.content
 
 
-# Non-Augmented query
-response = client.chat.completions.create(
-    messages=[
-        {
-            "role": "system",
-            "content": primer,
-        },
-        {
-            "role": "user",
-            "content": query,
-        }
-    ],
-    model="gpt-4o",
-    temperature=1,
-    max_tokens=4096,
-    top_p=1
-)
-print(response.choices[0].message.content)
 
-# droppping the "I don't know" part of the primer
-response = client.chat.completions.create(
-    messages=[
-        {
-            "role": "system",
-            "content": "You are Q&A bot. A highly intelligent system that answers user questions",
-        },
-        {
-            "role": "user",
-            "content": query,
-        }
-    ],
-    model="gpt-4o",
-    temperature=1,
-    max_tokens=4096,
-    top_p=1
-)
-print(response.choices[0].message.content)
+
+
+# # Non-Augmented query
+# response = client.chat.completions.create(
+#     messages=[
+#         {
+#             "role": "system",
+#             "content": primer,
+#         },
+#         {
+#             "role": "user",
+#             "content": query,
+#         }
+#     ],
+#     model="gpt-4o",
+#     temperature=1,
+#     max_tokens=4096,
+#     top_p=1
+# )
+# print(response.choices[0].message.content)
+
+# # droppping the "I don't know" part of the primer
+# response = client.chat.completions.create(
+#     messages=[
+#         {
+#             "role": "system",
+#             "content": "You are Q&A bot. A highly intelligent system that answers user questions",
+#         },
+#         {
+#             "role": "user",
+#             "content": query,
+#         }
+#     ],
+#     model="gpt-4o",
+#     temperature=1,
+#     max_tokens=4096,
+#     top_p=1
+# )
+# print(response.choices[0].message.content)
 
 
 

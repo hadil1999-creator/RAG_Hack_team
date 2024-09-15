@@ -1,0 +1,1 @@
+pc.delete_index(index_name)
