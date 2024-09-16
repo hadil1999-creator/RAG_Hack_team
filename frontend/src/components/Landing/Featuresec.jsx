@@ -10,9 +10,7 @@ export default function Featuresec() {
       <section className=" w-full gap-x-1 flex flex-  bg-black px-14 bg-opacity-15 ">
         <div className="w-1/2 flex-col text-[#f0fff1]  font-serif flex justify-center mt-">
           <div className="flex flex-col items-center w-[45rem]">
-            <div className="text-sm   rounded-3xl border px-3 py-1 w-28 shadow-sm shadow-lime-50 shadow-l text-center">
-              Feature
-            </div>
+            
             <div className="text-8xl mt-8 font-mono">
               Essentials tools for your financial growth
               <p className="text-xl mt-1 text-center text-green-100 text-opacity-25">

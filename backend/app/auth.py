@@ -1,6 +1,7 @@
 from app.db import get_db_connection
 import bcrypt
 from fastapi import HTTPException
+import mysql.connector  # Use mysql.connector for error handling
 
 # Function to hash password using bcrypt
 def hash_password(password):
@@ -30,20 +31,33 @@ def register_user(email, password):
         # Rollback in case of error
         db.rollback()
         error_message = f"Error: {err}"
-        print(error_message)  # Optionally log to a file or monitoring system
+        print(error_message)  # Log error details
         raise HTTPException(status_code=500, detail="Internal server error")
 
     finally:
         cursor.close()
         db.close()
 
+
+
 def login_user(email: str, password: str):
     db = get_db_connection()
     cursor = db.cursor()
-    sql = "SELECT password_hash FROM users WHERE email = %s"
-    cursor.execute(sql, (email,))
-    result = cursor.fetchone()
-    if result and bcrypt.checkpw(password.encode('utf-8'), result[0]):
-        return "mock_token"  # Replace with actual token generation
-    else:
-        raise ValueError("Invalid credentials")
+    try:
+        sql = "SELECT password_hash FROM users WHERE email = %s"
+        cursor.execute(sql, (email,))
+        result = cursor.fetchone()
+        
+        if result:
+            stored_hash = result[0]
+            if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
+                # Print success message to the console
+                print("Login successful for user:", email)
+                return "mock_token"  # Replace with actual token generation
+            else:
+                raise ValueError("Invalid credentials")
+        else:
+            raise ValueError("User not found")
+    finally:
+        cursor.close()
+        db.close()
