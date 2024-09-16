@@ -16,12 +16,6 @@ token = os.getenv("my_token")
 PINECONE_API_KEY = os.getenv("my_PINECONE_API_KEY")
 index_name = os.getenv("my_index_name")
 
-# endpoint = "https://models.inference.ai.azure.com"
-# embed_model="text-embedding-3-small"
-# token = "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"
-# PINECONE_API_KEY="e2cdc72a-777e-46c0-930f-52ec060345ac"
-# index_name = "rag"
-
 def init_embedding_client():
     embedding_client = EmbeddingsClient(
     endpoint=endpoint,
@@ -74,8 +68,8 @@ def load_doc(path):
     texts = text_splitter.split_documents(data)
     return texts
 
-# texts = load_doc(r"C:\Users\sama_\Desktop\osama\Economics-of-Investing-in-America-5-15.pdf")
-# print (texts)
+texts = load_doc(r"path_to_pdf_file")
+print (texts)
 
 # Step 2: Generate Embeddings
 def get_embeddings(texts):
