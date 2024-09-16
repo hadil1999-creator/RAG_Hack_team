@@ -56,63 +56,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-openai.api_key = "your-openai-api-key"
-
 class QueryRequest(BaseModel):
     query: str
 
-from ml.train import pc, index_name, embed_model, OPENAI_API_KEY
+from ml.train import rag_query_and_openai
 async def rag_query_and_openai(query: str):
     
-    response = openai.Embedding.create(input=query, model=embed_model, dimensions=768)
-    embedding = response['data'][0]['embedding']
-
-    # connect to index
-    index = pc.Index(index_name)
-    result = index.query(
-        namespace="",
-        vector=embedding, # real embeddings of the query
-        top_k=3, # get only the top_k matches
-        include_values=True
-    )
-    # print(result)
-
-    # get list of retrieved text
-
-    # adjust the format to get the id (the original text)
-    contexts = [item['metadata']['text'] for item in result['matches']]
-
-    augmented_query = "\n\n---\n\n".join(contexts)+"\n\n-----\n\n"+query
-
-    # system message to 'prime' the model
-    primer = f"""You are Q&A bot. A highly intelligent system that answers
-    user questions based on the information provided by the user above
-    each question. If the information can not be found in the information
-    provided by the user you truthfully say "I don't know".
-    """
-
-    from openai import OpenAI
-    client = OpenAI(
-        base_url="https://models.inference.ai.azure.com",
-        api_key=OPENAI_API_KEY,
-    )
-    response = client.chat.completions.create(
-        messages=[
-            {
-                "role": "system",
-                "content": primer,
-            },
-            {
-                "role": "user",
-                "content": augmented_query,
-            }
-        ],
-        model="gpt-4o",
-        temperature=1,
-        max_tokens=4096,
-        top_p=1
-    )
-    return response.choices[0].message.content
+    return rag_query_and_openai(str)
 
 # FastAPI route to handle user queries
 @app.post("/api/get-answer")
