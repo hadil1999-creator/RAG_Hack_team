@@ -20,14 +20,17 @@ def init_embedding_client():
     return embedding_client
 
 
-pc = Pinecone(api_key=PINECONE_API_KEY)
+
+def init_pinecone():
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+    return pc
 
 
 
-#pc.delete_index(index_name)
 
 def setup_Pinecone():
-
+    # initialize Pinecone Database
+    pc = init_pinecone()
     # Check if the desired index is in the list of existing indexes
     if index_name not in pc.list_indexes().names():
         print("creating index....")
@@ -42,17 +45,15 @@ def setup_Pinecone():
         print("index created successfuly!!")
     else:
         print("index_name already exists!!")
-
+    
     # connect to index
     index = pc.Index(index_name)
 
     # view index stats
     stats = index.describe_index_stats()
-
     print(stats)
     return index
 
-index = setup_Pinecone()
 
 def load_doc(path):
     # create a loader
@@ -66,7 +67,7 @@ def load_doc(path):
     texts = text_splitter.split_documents(data)
     return texts
 
-texts = load_doc(r"C:\Users\sama_\Desktop\osama\Economics-of-Investing-in-America-5-15.pdf")
+# texts = load_doc(r"C:\Users\sama_\Desktop\osama\Economics-of-Investing-in-America-5-15.pdf")
 # print (texts)
 
 # Step 2: Generate Embeddings
@@ -74,7 +75,6 @@ def get_embeddings(texts):
     embedding_client = init_embedding_client()
     embeddings = []
     for i, text_chunk in enumerate(texts):
-        print(text_chunk)
         print(text_chunk.page_content)
         print("########### EMBEDDING ##############")
         response = embedding_client.embed(input=text_chunk.page_content,model=embed_model, dimensions=768)
@@ -91,13 +91,12 @@ def get_embeddings(texts):
         }
         # Append the dictionary to the list
         embeddings.append(embedding_dict)
-        if i==0:
-            break
+
     return embeddings
 
 
 
-formatted_embeddings = get_embeddings(texts)
+# formatted_embeddings = get_embeddings(texts)
 #print(formatted_embeddings)
 
 
@@ -105,7 +104,8 @@ formatted_embeddings = get_embeddings(texts)
 def upsert():
 
     batch_size = 559
-
+    pc = init_pinecone()
+    index = pc.Index(index_name)
     # Process embeddings in chunks
     for i in range(0, len(formatted_embeddings), batch_size):
         batch = formatted_embeddings[i:i + batch_size]
@@ -116,20 +116,21 @@ def upsert():
 
     print(index.describe_index_stats())
     return
-print("######UPSERTING######")
-upsert()
+# print("######UPSERTING######")
+# upsert()
 
 
-query = "what is The central goal of President Biden’s plan?"
+# query = "what is The central goal of President Biden’s plan?"
 
 # # Step 4: Query
-def rag_query_and_openai(query: str):
+def rag(query: str):
     print(query)
     embedding_client = init_embedding_client()
     response = embedding_client.embed(input=[query],model=embed_model, dimensions=768)
     embedding = response['data'][0]['embedding']
     print("########## Query Embeddings ##########")
     print(embedding)
+    pc = init_pinecone()
     # connect to index
     index = pc.Index(index_name)
     result = index.query(
@@ -183,12 +184,11 @@ def rag_query_and_openai(query: str):
         max_tokens=4096,
         top_p=1
     )
-    print("################Model Answer###############")
+    print("################ Model Answer###############")
     return response.choices[0].message.content
 
 
-
-print(rag_query_and_openai(query))
+# print(rag(query))
 
 # # Non-Augmented query
 # response = client.chat.completions.create(
