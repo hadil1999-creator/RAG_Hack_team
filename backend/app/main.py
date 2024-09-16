@@ -59,7 +59,7 @@ app.add_middleware(
 class QueryRequest(BaseModel):
     query: str
 
-from ml.train import rag
+from ml.query import rag
 async def rag_query_and_openai(query: str):
     return rag(str)
 

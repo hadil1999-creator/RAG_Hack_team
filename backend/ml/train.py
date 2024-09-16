@@ -5,12 +5,22 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from azure.ai.inference import EmbeddingsClient
 from azure.core.credentials import AzureKeyCredential
 import time
+import os
 
-endpoint = "https://models.inference.ai.azure.com"
-embed_model="text-embedding-3-small"
-token = "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"
-PINECONE_API_KEY="e2cdc72a-777e-46c0-930f-52ec060345ac"
-index_name = "rag"
+
+from dotenv import load_dotenv
+load_dotenv()
+endpoint = os.getenv("my_endpoint")
+embed_model = os.getenv("my_embed_model")
+token = os.getenv("my_token")
+PINECONE_API_KEY = os.getenv("my_PINECONE_API_KEY")
+index_name = os.getenv("my_index_name")
+
+# endpoint = "https://models.inference.ai.azure.com"
+# embed_model="text-embedding-3-small"
+# token = "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"
+# PINECONE_API_KEY="e2cdc72a-777e-46c0-930f-52ec060345ac"
+# index_name = "rag"
 
 def init_embedding_client():
     embedding_client = EmbeddingsClient(
@@ -20,12 +30,9 @@ def init_embedding_client():
     return embedding_client
 
 
-
 def init_pinecone():
     pc = Pinecone(api_key=PINECONE_API_KEY)
     return pc
-
-
 
 
 def setup_Pinecone():
@@ -96,8 +103,8 @@ def get_embeddings(texts):
 
 
 
-# formatted_embeddings = get_embeddings(texts)
-#print(formatted_embeddings)
+formatted_embeddings = get_embeddings(texts)
+print(formatted_embeddings)
 
 
 # Step 3: Upsert the Formatted Embeddings into PineCone with 559 vectors / upsert request. See the limits for each dimension here: https://docs.pinecone.io/guides/data/upsert-data#upsert-limits
@@ -116,131 +123,5 @@ def upsert():
 
     print(index.describe_index_stats())
     return
-# print("######UPSERTING######")
-# upsert()
-
-
-# query = "what is The central goal of President Biden’s plan?"
-
-# # Step 4: Query
-def rag(query: str):
-    print(query)
-    embedding_client = init_embedding_client()
-    response = embedding_client.embed(input=[query],model=embed_model, dimensions=768)
-    embedding = response['data'][0]['embedding']
-    print("########## Query Embeddings ##########")
-    print(embedding)
-    pc = init_pinecone()
-    # connect to index
-    index = pc.Index(index_name)
-    result = index.query(
-        namespace="",
-        vector=embedding, # real embeddings of the query
-        top_k=3, # get only the top_k matches
-        include_values=True,
-        include_metadata=True
-    )
-
-    print("######### RESULT ###########")
-    print(result)
-
-    # get list of retrieved text
-
-    # adjust the format to get the text
-    contexts = [item['metadata']['text'] for item in result['matches']]
-    print("######### CONTEXTS ###########")
-    print(contexts)
-
-    augmented_query = "\n\n---\n\n".join(contexts)+"\n\n-----\n\n"+query
-
-    print("######### Augmented_Query ###########")
-    print(augmented_query)
-
-    # system message to 'prime' the model
-    primer = f"""You are Q&A bot. A highly intelligent system that answers
-    user questions based on the information provided by the user above
-    each question. If the information can not be found in the information
-    provided by the user you truthfully say "I don't know".
-    """
-
-    
-    openai_client = OpenAI(
-        base_url="https://models.inference.ai.azure.com",
-        api_key=token,
-    )
-    response = openai_client.chat.completions.create(
-        messages=[
-            {
-                "role": "system",
-                "content": primer,
-            },
-            {
-                "role": "user",
-                "content": augmented_query,
-            }
-        ],
-        model="gpt-4o",
-        temperature=1,
-        max_tokens=4096,
-        top_p=1
-    )
-    print("################ Model Answer###############")
-    return response.choices[0].message.content
-
-
-# print(rag(query))
-
-# # Non-Augmented query
-# response = client.chat.completions.create(
-#     messages=[
-#         {
-#             "role": "system",
-#             "content": primer,
-#         },
-#         {
-#             "role": "user",
-#             "content": query,
-#         }
-#     ],
-#     model="gpt-4o",
-#     temperature=1,
-#     max_tokens=4096,
-#     top_p=1
-# )
-# print(response.choices[0].message.content)
-
-# # droppping the "I don't know" part of the primer
-# response = client.chat.completions.create(
-#     messages=[
-#         {
-#             "role": "system",
-#             "content": "You are Q&A bot. A highly intelligent system that answers user questions",
-#         },
-#         {
-#             "role": "user",
-#             "content": query,
-#         }
-#     ],
-#     model="gpt-4o",
-#     temperature=1,
-#     max_tokens=4096,
-#     top_p=1
-# )
-# print(response.choices[0].message.content)
-
-
-
-
-
-
-
-
-
-####################################################################################################################
-# Set up API key and endpoint
-# openai.api_key = OPENAI_API_KEY
-
-# openai.api_base = "https://models.inference.ai.azure.com"  # Azure endpoint
-
-# # Define model name and parameters
-# model_name = "gpt-4o"
+print("######UPSERTING######")
+upsert()
