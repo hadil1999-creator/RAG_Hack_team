@@ -59,10 +59,9 @@ app.add_middleware(
 class QueryRequest(BaseModel):
     query: str
 
-from ml.train import rag_query_and_openai
+from ml.query import rag
 async def rag_query_and_openai(query: str):
-    
-    return rag_query_and_openai(str)
+    return rag(str)
 
 # FastAPI route to handle user queries
 @app.post("/api/get-answer")
