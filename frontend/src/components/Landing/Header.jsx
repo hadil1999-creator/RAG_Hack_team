@@ -41,7 +41,7 @@ export default function Header() {
           </li>
           <li className="ml-auto">
             <Link 
-              to="/signup" 
+              to="/home" 
               className="text-center justify-center px-3 py-1 flex bg-gradient-to-br from-black to-green-900 rounded-3xl bg-opacity-1 items-center gap-x-1 w-full max-w-[24] hover:transition-transform hover:scale-110"
             >
               <span>Get Started</span>
