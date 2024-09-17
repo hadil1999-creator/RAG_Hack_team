@@ -1,3 +1,7 @@
+<p align="center">
+  <img src ="/frontend/src/assets/image/logo2.png" width="240" height="240" >
+</p>
+
 # 🤖💰 AI-Powered Financial Advisor
 
 ## 🌟 Introduction
