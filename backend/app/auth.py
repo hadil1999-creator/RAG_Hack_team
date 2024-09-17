@@ -1,6 +1,7 @@
-# from app.db import get_db_connection
-# import bcrypt
-# from fastapi import HTTPException
+from app.db import get_db_connection
+import bcrypt
+from fastapi import HTTPException
+import mysql.connector  # Use mysql.connector for error handling
 
 # # Function to hash password using bcrypt
 # def hash_password(password):

@@ -144,14 +144,9 @@ openai.api_key = "your-openai-api-key"
 class QueryRequest(BaseModel):
     query: str
 
+from ml.query import rag
 async def rag_query_and_openai(query: str):
-    #here will be the code of ai (not this one-this is just an example)
-    response = openai.ChatCompletion.create(
-        model="gpt-35-turbo",  # Example model, replace with actual one
-        messages=[{"role": "system", "content": "You are a helpful assistant."},
-                  {"role": "user", "content": query}]
-    )
-    return response.choices[0].message["content"]
+    return rag(str)
 
 # FastAPI route to handle user queries
 @app.post("/api/get-answer")

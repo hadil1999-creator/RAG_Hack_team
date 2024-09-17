@@ -24,4 +24,9 @@ authlib==1.3.2
 python-dotenv
 starlette
 itsdangerous==2.2.0
-firebase-admin
+firebase-adminopenai
+pinecone
+langchain
+langchain-community
+pypdf
+azure-ai-inference
