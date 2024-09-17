@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Depends
+from fastapi import FastAPI,Depends,HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from authlib.integrations.starlette_client import OAuth
 from starlette.requests import Request
@@ -148,6 +148,7 @@ from ml.query import rag
 async def rag_query_and_openai(query: str):
     return rag(str)
 
+
 # FastAPI route to handle user queries
 @app.post("/api/get-answer")
 async def get_answer(request: QueryRequest):
@@ -157,3 +158,5 @@ async def get_answer(request: QueryRequest):
         return {"answer": answer}
     except Exception as e:
         return {"error": str(e)}
+
+    

@@ -35,13 +35,15 @@ export default function Chat() {
 
     // Send the user's input to the backend API and get the response
     try {
-      const res = await fetch("http://localhost:8000/api/get-answer", {
+      const res = await fetch("http://127.0.0.1:8000/api/get-answer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ query: content }),
       });
+    
+      
 
       if (res.ok) {
         const data = await res.json();
