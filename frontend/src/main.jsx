@@ -12,8 +12,9 @@ import Analysis from "./Pages/Analysis.jsx";
 import Historychat from "./Pages/Historychat.jsx";
 import Profile from "./Pages/setting/Profile.jsx";
 import Account from "./Pages/setting/Account.jsx";
-import Login from "./Pages/Login.jsx";
+import Sign_up from "./Pages/Auth/Sign_up.jsx";
 import Chat from "./Pages/Chat.jsx";
+import Sign_in from "./Pages/Auth/Sign_in.jsx";
 
 const router = createBrowserRouter([
   {
@@ -21,9 +22,11 @@ const router = createBrowserRouter([
     element: <Landing />,
   },
   {
-    path: "/login",
-    element: <Login />,
+    path: "/signin",
+    element: <Sign_in />,
   },
+  { path: "/signup", 
+    element: <Sign_up /> },
   {
     element: <Layout />,
     children: [

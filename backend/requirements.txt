@@ -11,7 +11,20 @@ starlette==0.38.4
 typing_extensions==4.12.2
 tzdata==2024.1
 uvicorn==0.30.6
-openai
+mysql-connector-python== 9.0.0
+bcrypt==4.2.0
+openai==1.45.0
+python-dotenv==1.0.1
+sqlalchemy==2.0.34
+pymysql
+passlib[bcrypt]
+python-jose
+email-validator
+authlib==1.3.2 
+python-dotenv
+starlette
+itsdangerous==2.2.0
+firebase-adminopenai
 pinecone
 langchain
 langchain-community

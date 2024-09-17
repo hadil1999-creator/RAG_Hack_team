@@ -18,7 +18,7 @@ export default function landing() {
             <span className="text-green-300">Finance</span>
           </h1>
           <div className="flex justify-center">
-            <Link to="/login">
+            <Link to="/signup">
             <button className="mt-4 border text-xl text-[#f0fff1] px-3 py-3 rounded-lg w-96 [background:linear-gradient(45deg,#000,theme(colors.slate.800)_50%,#14532d)_padding-box,conic-gradient(from_var(--border-angle),theme(colors.slate.600/.48)_80%,_#f0fff1_86%,_#f0fff1_90%,_#f0fff1_94%,_theme(colors.slate.600/.48))_border-box] border-transparent animate-border hover:transition-transform hover:scale-110 shadow-2xl">
               Sign up Now
             </button>
