@@ -1,6 +1,5 @@
 import Featurecard from "./Featurecard.jsx";
 import dollar from "../../assets/svg/dollar.svg";
-// import chart from "../../assets/svg/chart.svg";
 import analysis from "../../assets/svg/analysis.svg";
 import goal from "../../assets/svg/goal.svg";
 import secure from "../../assets/svg/secure.svg";
