@@ -95,39 +95,7 @@ async def logout(request: Request):
 
 import openai
 from dotenv import load_dotenv
-
-# # from fastapi import FastAPI, Form
-# # from fastapi import FastAPI, HTTPException, Form
-# # from app.auth import register_user, login_user
-# # import bcrypt
-# # import mysql.connector
-# # from app.db import get_db_connection
-# # from pydantic import BaseModel
 import os
-
-
-# # @app.post("/login")
-# # def login(email: str = Form(...), password: str = Form(...)):
-# #     try:
-# #         db = get_db_connection()
-# #         cursor = db.cursor()
-# #         sql = "SELECT password_hash FROM users WHERE email = %s"
-# #         cursor.execute(sql, (email,))
-# #         result = cursor.fetchone()
-        
-# #         if result and bcrypt.checkpw(password.encode('utf-8'), result[0]):
-# #             return {"message": "Login successful!"}
-# #         else:
-# #             raise HTTPException(status_code=401, detail="Invalid credentials")
-# #     except mysql.connector.Error as err:
-# #         raise HTTPException(status_code=500, detail="Internal server error")
-
-# # @app.post("/register")
-# # def register(email: str = Form(...), password: str = Form(...)):
-# #     register_user(email, password)
-# #     return {"message": "User registered successfully!"}
-
-
 
 # # # Get configuration settings 
 load_dotenv()
