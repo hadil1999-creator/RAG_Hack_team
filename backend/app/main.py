@@ -7,8 +7,8 @@ from starlette.responses import HTMLResponse,JSONResponse, RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 from .api.endpoints import users
 from pydantic import BaseModel
-
-
+from fastapi import FastAPI, Depends, BackgroundTasks 
+from langchain_community.document_loaders import PyPDFLoader
 app = FastAPI()
 
 #********** login and register **********
@@ -140,20 +140,38 @@ azure_search_index = os.getenv("AZURE_SEARCH_INDEX")
         
 # Initialize the OpenAI API client
 openai.api_key = "your-openai-api-key"
+import cProfile
+import pstats
+import io
+
 
 class QueryRequest(BaseModel):
     query: str
 
 from ml.query import rag
+
 async def rag_query_and_openai(query: str):
-    return rag(str)
+    pr = cProfile.Profile()
+    pr.enable()
+    try:
+        result = rag(query)  # Call your RAG function
+        if isinstance(result, str):
+            return result
+        else:
+            return {"error": "Unexpected response format."}
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        pr.disable()
+        s = io.StringIO()
+        sortby = pstats.SortKey.CUMULATIVE
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        print(s.getvalue()) 
 
 # FastAPI route to handle user queries
 @app.post("/api/get-answer")
-async def get_answer(request: QueryRequest):
-    try:
-        user_query = request.query
-        answer = await rag_query_and_openai(user_query)
-        return {"answer": answer}
-    except Exception as e:
-        return {"error": str(e)}
+async def get_answer(request: QueryRequest, background_tasks: BackgroundTasks):
+    user_query = request.query
+    answer = await rag_query_and_openai(user_query)
+    return {"answer": answer}

@@ -29,21 +29,40 @@ export default function Chat() {
   };
 
   const handleNewResponse = async (content) => {
-    //add the user message to the chatbox
     setResponse((prev) => [...prev, { content, isUser: true }]);
     setInputContent("");
     setIsLoading(true);
-    //scroll to bottom
-    // messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  
+    try {
+      console.log("Sending request to backend with query:", content);
+      const res = await fetch("http://localhost:8000/api/get-answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query: content }),
+      });
+      console.log("Received response from backend:", res);
 
-    // Simulate AI response (replace with actual API call)
-    setTimeout(() => {
-      const aiResponse =
-        "hello,I am your Financial Advisor. How can I help you today?";
-      setResponse((prev) => [...prev, { content: aiResponse, isUser: false }]);
+      if (res.ok) {
+        const data = await res.json();
+        console.log("Backend response data:", data);
+
+        const aiResponse = data.answer; // Get the answer from the backend
+        setResponse((prev) => [...prev, { content: aiResponse, isUser: false }]);
+      } else {
+        const errorData = await res.json();
+        console.error("Backend returned an error:", errorData);
+
+        setResponse((prev) => [...prev, { content: `Error: ${errorData.error}`, isUser: false }]);
+      }
+    } catch (error) {
+      console.error("Error communicating with backend:", error);
+      setResponse((prev) => [...prev, { content: `Error: ${error.message}`, isUser: false }]);
+    } finally {
       setIsLoading(false);
-      messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 1000);
+      scrollToBottom();
+    }
   };
 
   const handleInputChange = (e) => {
