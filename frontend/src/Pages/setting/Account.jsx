@@ -1,4 +1,5 @@
 export default function Account() {
+  
   return (
     <div className="w-full flex flex-col gap-y-8 pt-10 ml-32">
       <div className="bg-[#D9D9D9] text-[#e2fbe4] bg-opacity-10 rounded-3xl w-[700px]  p-10">

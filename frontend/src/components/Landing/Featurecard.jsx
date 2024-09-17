@@ -1,5 +1,5 @@
-
 import PropTypes from "prop-types";
+
 export default function Featurecard({heading, icon, description,className}) {
   return (
     <div className={`bg-gradient-to-tr group opacity-65 hover:opacity-100 hover:bg-gradient-to-br hover:from-black hover:to-green-400 cursor-pointer from-green-950 via-black to-green-950 border border-green-700  p-10 text  rounded-[35px] flex items-end  shadow-2xl] ${className}` }>

@@ -2,7 +2,6 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-// import App from "./App.jsx";
 import Landing from "./Pages/Landing.jsx";
 import Home from "./Pages/Home.jsx";
 import Layout from "./layout.jsx";
