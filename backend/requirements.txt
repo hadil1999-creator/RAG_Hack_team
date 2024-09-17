@@ -24,7 +24,6 @@ authlib==1.3.2
 python-dotenv
 starlette
 itsdangerous==2.2.0
-firebase-adminopenai
 pinecone
 langchain
 langchain-community

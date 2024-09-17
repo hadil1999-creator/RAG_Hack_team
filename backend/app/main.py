@@ -153,8 +153,7 @@ async def rag_query_and_openai(query: str):
 async def get_answer(request: QueryRequest):
     try:
         user_query = request.query
-        answer = "Simulated response"
-        #answer = await rag_query_and_openai(user_query)
+        answer = await rag_query_and_openai(user_query)
         return {"answer": answer}
     except Exception as e:
         return {"error": str(e)}
