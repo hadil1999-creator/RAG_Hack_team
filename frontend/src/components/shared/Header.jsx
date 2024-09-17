@@ -1,4 +1,4 @@
-import Card from "../setting/Card.jsx";
+
 
 export default function Header() {
   return (

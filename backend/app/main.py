@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from authlib.integrations.starlette_client import OAuth
 from starlette.requests import Request
 from starlette.config import Config
-from starlette.responses import RedirectResponse
+from starlette.responses import HTMLResponse,JSONResponse, RedirectResponse
+from starlette.middleware.sessions import SessionMiddleware
 from .api.endpoints import users
 from pydantic import BaseModel
 
@@ -34,6 +35,19 @@ def read_root():
 
 
 #********** OAuth setup **********
+app.add_middleware(SessionMiddleware, secret_key="!secret")
+@app.get('/')
+async def home(request: Request):
+    user = request.session.get('user')
+    if user is not None:
+        email = user['email']
+        html = (
+            f'<pre>Email: {email}</pre><br>'
+            '<a href="/docs">documentation</a><br>'
+            '<a href="/logout">logout</a>'
+        )
+        return HTMLResponse(html)
+    return HTMLResponse('<a href="/login">login</a>')
 #load environment variables
 config = Config(".env")
 
@@ -44,8 +58,7 @@ CONF_URL = "https://accounts.google.com/.well-known/openid-configuration"
 oauth.register(
     name="google",
     server_metadata_url=CONF_URL, 
-    client_id=config("GOOGLE_CLIENT_ID"),
-    client_secret=config("GOOGLE_CLIENT_SECRET"),
+   
     client_kwargs={"scope": "openid email profile"},
 )
 
@@ -55,19 +68,26 @@ async def login_via_google(request:Request):
     redirect_uri = request.url_for("auth_via_google")
     return await oauth.google.authorize_redirect(request,redirect_uri)
 
-@app.get("/auth/google")
+@app.route("/auth/google")
 async def auth_via_google(request:Request):
     token = await oauth.google.authorize_access_token(request) # Get the token
+    if 'id_token' not in token:
+        return {"error": "Authentication failed. No ID token found."}
     user = await oauth.google.parse_id_token(request,token) # Parse the user
     # Here we would typically create a session or JWT for the user
-
-    return {"user": user}
+    #save the user in the database
+    request.session["user"] = dict(user)
+    # return {"user": user}
+    return RedirectResponse(url="/")
 
 app.include_router(users.router, prefix="/users")
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the FastAPI application!"}
+@app.get('/logout') 
+async def logout(request: Request):
+    # Remove the user
+    request.session.pop('user', None)
+
+    return RedirectResponse(url='/home')
 
 
 #************ OpenAI API ************
